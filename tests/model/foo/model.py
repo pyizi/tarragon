@@ -1,4 +1,4 @@
-from model.foo.bar.model_too import Type5, Type6
+from tests.model.foo.bar.model_too import Type5, Type6
 
 
 class Type4:

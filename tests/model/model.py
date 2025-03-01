@@ -1,5 +1,5 @@
-from model.foo.bar.model_too import Type5, Type6
-from model.foo.model import Type3, Type4
+from tests.model.foo.bar.model_too import Type5, Type6
+from tests.model.foo.model import Type3, Type4
 
 
 class Type2:

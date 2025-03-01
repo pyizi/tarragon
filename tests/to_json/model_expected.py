@@ -93,7 +93,7 @@ def type2() -> str:
         }},
         "_S": {{
             "type": "set",
-            "array": [{type5()}]
+            "array": [{type5()}, {type6(6)}]
         }},
         "L": [{type3()}, {type4()}],
         "_Type2__T": {{

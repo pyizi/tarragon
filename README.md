@@ -26,3 +26,8 @@ Tarragon is text analogue of [dill](https://pypi.org/project/dill/) library.
     ```
     poetry config --unset http-basic.<REPO_NAME>
     ```
+6. Install poetry dependencies
+    ```
+    poetry lock
+    poetry install
+    ```
