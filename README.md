@@ -22,3 +22,7 @@ Tarragon is text analogue of [dill](https://pypi.org/project/dill/) library.
     poetry publish --build --repository <REPO_NAME>
     ```
    Remove "--repository" parameter for using default "pypi" repository.
+5. Remove credentials for <REPO_NAME>
+    ```
+    poetry config --unset http-basic.<REPO_NAME>
+    ```
