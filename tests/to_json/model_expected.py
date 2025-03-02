@@ -1,3 +1,5 @@
+# FIXME circular and None will added
+
 def type6(uid) -> str:
     return f"""{{
     "type": "tests.model.foo.bar.model_too.Type6",
@@ -60,7 +62,7 @@ def type3() -> str:
     return f"""{{
     "type": "tests.model.foo.model.Type3",
     "object": {{
-        "type5": {type5()},
+        "_type5": {type5()},
         "_Type3__dct": {{
             "type": "dict",
             "items": [

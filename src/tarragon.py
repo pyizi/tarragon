@@ -11,9 +11,12 @@ class DictRepresentor:
         return result
 
     @classmethod
-    def get_representation(cls, obj: Any) -> int | float | bool | str | list | dict:
+    def get_representation(cls, obj: Any | None) -> int | float | bool | str | list | dict | None:
         obj_type = type(obj)
-        if obj_type in [int, float, bool, str]:
+        if obj is None:
+            # FIXME what will be in JSON after json.dumps? null?
+            return None
+        elif obj_type in [int, float, bool, str]:
             return obj
         elif obj_type is list:
             return cls.__get_collection_representation(obj)

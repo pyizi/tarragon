@@ -56,7 +56,14 @@ class SetsAndDictsFixer:
 def test_dict_to_json():
     uid = 7
 
-    actual_json = tarragon.to_json({Type5(): "67", Type6(uid): Type4(), 1: Type5()})
+    type5_object = Type5(None, None, None, None, None)
+    type4_object = Type4(None, None, None, type5_object, None)
+    type6_object = Type6(uid, None, None, None, type4_object, type5_object)
+    type5_object.type4 = type4_object
+    type5_object.type6 = type6_object
+    type4_object.type6 = type6_object
+
+    actual_json = tarragon.to_json({type5_object: "67", type6_object: type4_object, 1: type5_object})
     expected_json = f"""{{
         "type": "dict",
         "items": [
@@ -80,7 +87,11 @@ def test_dict_to_json():
 
 
 def test_list_to_json():
-    actual_json = tarragon.to_json([Type5(), Type4()])
+    type5_object = Type5(None, None, None, None, None)
+    type4_object = Type4(None, None, None, type5_object, None)
+    type5_object.type4 = type4_object
+
+    actual_json = tarragon.to_json([type5_object, type4_object])
     expected_json = f"[{type5()}, {type4()}]"
 
     assertpy.assert_that(SetsAndDictsFixer.fix(json.loads(actual_json))).is_equal_to(
@@ -88,7 +99,11 @@ def test_list_to_json():
 
 
 def test_tuple_to_json():
-    actual_json = tarragon.to_json((Type5(), Type4()))
+    type5_object = Type5(None, None, None, None, None)
+    type4_object = Type4(None, None, None, type5_object, None)
+    type5_object.type4 = type4_object
+
+    actual_json = tarragon.to_json((type5_object, type4_object))
     expected_json = f"""{{
                 "type": "tuple",
                 "array": [{type5()}, {type4()}]
@@ -99,7 +114,11 @@ def test_tuple_to_json():
 
 
 def test_set_to_json():
-    actual_json = tarragon.to_json({Type5(), Type4()})
+    type5_object = Type5(None, None, None, None, None)
+    type4_object = Type4(None, None, None, type5_object, None)
+    type5_object.type4 = type4_object
+
+    actual_json = tarragon.to_json({type5_object, type4_object})
     expected_json = f"""{{
                 "type": "set",
                 "array": [{type5()}, {type4()}]
