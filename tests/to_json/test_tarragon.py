@@ -1,8 +1,6 @@
 import json
-from typing import Any
 
 import assertpy
-from frozendict import frozendict
 
 import tarragon
 from tests.model.foo.bar.model_too import Type5, Type6
@@ -15,49 +13,6 @@ from tests.to_json.model_expected import Type1Representation, next_id, Type5Repr
 class Hook:
     def __init__(self, ref=None):
         self.ref = ref
-
-
-# FIXME вероятно можно будет удалить, т.к dict соблюдает порядок, а set-ов больше у меня не осталось (почти)
-class SetsAndDictsFixer:
-    @classmethod
-    def __dive_to_list(cls, lst: list[Any]):
-        for i, item in enumerate(lst):
-            if type(item) is list:
-                cls.__dive_to_list(item)
-                lst[i] = tuple(item)
-            elif type(item) is dict:
-                cls.__fix_sets_and_dicts(item)
-                lst[i] = frozendict(item)
-
-    @classmethod
-    def __fix_sets_and_dicts(cls, dct: dict[str, Any]):
-        for key, value in dct.items():
-            if type(value) is dict:
-                cls.__fix_sets_and_dicts(value)
-                dct[key] = frozendict(value)
-            elif type(value) is list:
-                cls.__dive_to_list(value)
-                dct[key] = tuple(value)
-            elif key == "type":
-                if value == "set":
-                    cls.__dive_to_list(dct["array"])
-                    dct["array"] = tuple(dct["array"])
-                    dct["array"] = frozenset(dct["array"])
-                elif value == "dict":
-                    cls.__dive_to_list(dct["items"])
-                    dct["items"] = tuple(dct["items"])
-                    dct["items"] = frozenset(dct["items"])
-
-    @classmethod
-    def fix(cls, obj: dict[str, Any] | list[Any]) -> frozendict[str, Any] | tuple[Any]:
-        if isinstance(obj, dict):
-            cls.__fix_sets_and_dicts(obj)
-            return frozendict(obj)
-        elif isinstance(obj, list):
-            cls.__dive_to_list(obj)
-            return tuple(obj)
-        else:
-            raise ValueError(f"obj={obj} is not a dict/list")
 
 
 def test_dict_to_json():
@@ -118,8 +73,7 @@ def test_dict_to_json():
         ]
     }}"""
 
-    assertpy.assert_that(SetsAndDictsFixer.fix(json.loads(actual_json))).is_equal_to(
-        SetsAndDictsFixer.fix(json.loads(expected_json)))
+    assertpy.assert_that(json.loads(actual_json)).is_equal_to(json.loads(expected_json))
 
 
 def test_list_to_json():
@@ -149,8 +103,7 @@ def test_list_to_json():
         ]
     }}"""
 
-    assertpy.assert_that(SetsAndDictsFixer.fix(json.loads(actual_json))).is_equal_to(
-        SetsAndDictsFixer.fix(json.loads(expected_json)))
+    assertpy.assert_that(json.loads(actual_json)).is_equal_to(json.loads(expected_json))
 
 
 def test_tuple_to_json():
@@ -187,8 +140,7 @@ def test_tuple_to_json():
         ]
     }}"""
 
-    assertpy.assert_that(SetsAndDictsFixer.fix(json.loads(actual_json))).is_equal_to(
-        SetsAndDictsFixer.fix(json.loads(expected_json)))
+    assertpy.assert_that(json.loads(actual_json)).is_equal_to(json.loads(expected_json))
 
 
 # FIXME тут видимо будут проблемы из-за неупорядоченности set
@@ -226,8 +178,7 @@ def test_set_to_json():
         ]
     }}"""
 
-    assertpy.assert_that(SetsAndDictsFixer.fix(json.loads(actual_json))).is_equal_to(
-        SetsAndDictsFixer.fix(json.loads(expected_json)))
+    assertpy.assert_that(json.loads(actual_json)).is_equal_to(json.loads(expected_json))
 
 
 def test_object_to_json():
@@ -236,8 +187,7 @@ def test_object_to_json():
     actual_json = tarragon.to_json(Type1(y))
     expected_json = Type1Representation(y, next_id())()
 
-    assertpy.assert_that(SetsAndDictsFixer.fix(json.loads(actual_json))).is_equal_to(
-        SetsAndDictsFixer.fix(json.loads(expected_json)))
+    assertpy.assert_that(json.loads(actual_json)).is_equal_to(json.loads(expected_json))
 
 
 def test_int_to_json():
