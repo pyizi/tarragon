@@ -11,6 +11,11 @@ from tests.model.model import Type1
 from tests.to_json.model_expected import type1, type4, type5, type6
 
 
+class Hook:
+    def __init__(self, ref=None):
+        self.ref = ref
+
+
 class SetsAndDictsFixer:
     @classmethod
     def __dive_to_list(cls, lst: list[Any]):
@@ -63,21 +68,42 @@ def test_dict_to_json():
     type5_object.type6 = type6_object
     type4_object.type6 = type6_object
 
-    actual_json = tarragon.to_json({type5_object: "67", type6_object: type4_object, 1: type5_object})
+    hook = Hook()
+    dct = {type5_object: "67", type6_object: type4_object, 1: type5_object, hook: hook}
+    hook.ref = dct
+
+    actual_json = tarragon.to_json(dct)
     expected_json = f"""{{
         "type": "dict",
+        "id": 0,
         "items": [
             {{
-                "key": {type5()},
+                "key": {type5(None, None, None, 4, 3, 1)},
                 "value": "67"
             }},
             {{
-                "key": {type6(uid)},
-                "value": {type4()}
+                "key": {type6(uid, None, None, None, 4, 1, 3)},
+                "value": {type4(None, None, None, 1, 3, 4)}
             }},
             {{
                 "key": 1,
-                "value": {type5()}
+                "value": {{
+                    "ref_id": 1
+                }}
+            }},
+            {{
+                "key": {{
+                    "type": "tests.to_json.test_tarragon.Hook",
+                    "id": 12,
+                    "object": {{
+                        "ref": {{
+                            "ref_id": 0
+                        }}
+                    }}
+                }},
+                "value": {{
+                    "ref_id": 12
+                }}
             }}
         ]
     }}"""
@@ -91,8 +117,21 @@ def test_list_to_json():
     type4_object = Type4(None, None, None, type5_object, None)
     type5_object.type4 = type4_object
 
-    actual_json = tarragon.to_json([type5_object, type4_object])
-    expected_json = f"[{type5()}, {type4()}]"
+    lst = [type5_object, type4_object]
+    lst.append(lst)
+
+    actual_json = tarragon.to_json(lst)
+    expected_json = f"""{{
+        "type": "list",
+        "id": 0,
+        "array": [
+            {type5(None, None, None, 3, None, 1)}, 
+            {type4(None, None, None, 1, None, 3)}, 
+            {{
+                "ref_id": 0
+            }}
+        ]
+    }}"""
 
     assertpy.assert_that(SetsAndDictsFixer.fix(json.loads(actual_json))).is_equal_to(
         SetsAndDictsFixer.fix(json.loads(expected_json)))
@@ -103,11 +142,28 @@ def test_tuple_to_json():
     type4_object = Type4(None, None, None, type5_object, None)
     type5_object.type4 = type4_object
 
-    actual_json = tarragon.to_json((type5_object, type4_object))
+    hook = Hook()
+    tpl = (type5_object, type4_object, hook)
+    hook.ref = tpl
+
+    actual_json = tarragon.to_json(tpl)
     expected_json = f"""{{
-                "type": "tuple",
-                "array": [{type5()}, {type4()}]
-            }}"""
+        "type": "tuple",
+        "id": 0,
+        "array": [
+            {type5(None, None, None, 3, None, 1)}, 
+            {type4(None, None, None, 1, None, 3)}, 
+            {{
+                "type": "tests.to_json.test_tarragon.Hook",
+                "id": 11,
+                "object": {{
+                    "ref": {{
+                        "ref_id": 0
+                    }}
+                }}
+            }}
+        ]
+    }}"""
 
     assertpy.assert_that(SetsAndDictsFixer.fix(json.loads(actual_json))).is_equal_to(
         SetsAndDictsFixer.fix(json.loads(expected_json)))
@@ -118,11 +174,28 @@ def test_set_to_json():
     type4_object = Type4(None, None, None, type5_object, None)
     type5_object.type4 = type4_object
 
-    actual_json = tarragon.to_json({type5_object, type4_object})
+    st = {type5_object, type4_object}
+    hook = Hook(st)
+    st.add(hook)
+
+    actual_json = tarragon.to_json(st)
     expected_json = f"""{{
-                "type": "set",
-                "array": [{type5()}, {type4()}]
-            }}"""
+        "type": "set",
+        "id": 0,
+        "array": [
+            {type5(None, None, None, 3, None, 1)}, 
+            {type4(None, None, None, 1, None, 3)}, 
+            {{
+                "type": "tests.to_json.test_tarragon.Hook",
+                "id": 11,
+                "object": {{
+                    "ref": {{
+                        "ref_id": 0
+                    }}
+                }}
+            }}
+        ]
+    }}"""
 
     assertpy.assert_that(SetsAndDictsFixer.fix(json.loads(actual_json))).is_equal_to(
         SetsAndDictsFixer.fix(json.loads(expected_json)))
@@ -168,5 +241,12 @@ def test_str_to_json():
 
     actual_json = tarragon.to_json(value)
     expected_json = f"\"{value}\""
+
+    assertpy.assert_that(actual_json).is_equal_to(expected_json)
+
+
+def test_None_to_json():
+    actual_json = tarragon.to_json(None)
+    expected_json = "null"
 
     assertpy.assert_that(actual_json).is_equal_to(expected_json)

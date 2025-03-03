@@ -2,54 +2,78 @@ import json
 from typing import Any
 
 
-class DictRepresentor:
-    @classmethod
-    def __get_collection_representation(cls, collection: list | tuple | set) -> list:
-        result = []
-        for item in collection:
-            result.append(cls.get_representation(item))
+class __DictRepresentor:
+    def __init__(self, root_obj: Any | None):
+        self.__root_obj = root_obj
+        self.__init_state()
+
+    @property
+    def next_virtual_id(self) -> int:
+        result = self.__next_virtual_id
+        self.__next_virtual_id += 1
         return result
 
-    @classmethod
-    def get_representation(cls, obj: Any | None) -> int | float | bool | str | list | dict | None:
+    def run(self) -> int | float | bool | str | list | dict | None:
+        result = self.__get_representation(self.__root_obj)
+        self.__init_state()
+        return result
+
+    def __init_state(self):
+        self.__real_to_virtual_id = {}
+        self.__next_virtual_id = 0
+
+    def __get_representation(self, obj: Any | None) -> int | float | bool | str | list | dict | None:
         obj_type = type(obj)
         if obj is None:
-            # FIXME what will be in JSON after json.dumps? null?
             return None
         elif obj_type in [int, float, bool, str]:
             return obj
-        elif obj_type is list:
-            return cls.__get_collection_representation(obj)
-        elif obj_type in [tuple, set]:
-            array = cls.__get_collection_representation(obj)
+
+        real_obj_id = id(obj)
+        if real_obj_id in self.__real_to_virtual_id:
             return {
-                "type": obj_type.__name__,
-                "array": array
-            }
-        elif obj_type is dict:
-            items = []
-            for key, value in obj.items():
-                items.append({
-                    "key": cls.get_representation(key),
-                    "value": cls.get_representation(value)
-                })
-            return {
-                "type": obj_type.__name__,
-                "items": items
+                "ref_id": self.__real_to_virtual_id[real_obj_id],
             }
         else:
-            # If custom class
-            fields = {}
-            for key, value in vars(obj).items():
-                fields[key] = cls.get_representation(value)
-            return {
-                "type": obj_type.__module__ + "." + obj_type.__name__,
-                "object": fields
-            }
+            virtual_obj_id = self.next_virtual_id
+
+            self.__real_to_virtual_id[real_obj_id] = virtual_obj_id
+
+            if obj_type in [list, tuple, set]:
+                array = []
+                for item in obj:
+                    array.append(self.__get_representation(item))
+                return {
+                    "type": obj_type.__name__,
+                    "id": virtual_obj_id,
+                    "array": array
+                }
+            elif obj_type is dict:
+                items = []
+                for key, value in obj.items():
+                    items.append({
+                        "key": self.__get_representation(key),
+                        "value": self.__get_representation(value)
+                    })
+                return {
+                    "type": obj_type.__name__,
+                    "id": virtual_obj_id,
+                    "items": items
+                }
+            else:
+                # If custom class
+                fields = {}
+                for key, value in vars(obj).items():
+                    fields[key] = self.__get_representation(value)
+                return {
+                    "type": obj_type.__module__ + "." + obj_type.__name__,
+                    "id": virtual_obj_id,
+                    "object": fields
+                }
 
 
 def to_json(obj: Any) -> str:
-    return json.dumps(DictRepresentor.get_representation(obj))
+    return json.dumps(__DictRepresentor(obj).run())
 
 
 def from_json(json: str) -> Any:
