@@ -31,7 +31,7 @@ class Type4:
         self.x: int = 7
         self.y = dict(a="a", b=Type5(type1, type2, type3, self, type6), c="c")
         self.z = tuple([1, 2, 3])
-        self.w = set([1, Type6(123, type1, type2, type3, self, type5), 3, 3])
+        self.w = [1, Type6(123, type1, type2, type3, self, type5), 3, 3]
         self.lst: list = list(range(3))
         self.type1 = type1
         self.type2 = type2

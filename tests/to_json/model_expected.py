@@ -1,196 +1,386 @@
-def __get_ref(type_id: int | None) -> str:
-    return "null" if type_id is None else f'{{ "ref_id": {type_id} }}'
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import Generator
 
 
-def type6(uid, type1_id, type2_id, type3_id, type4_id, type5_id, next_id=0) -> str:
-    """After this method next_id will be = next_id + 1"""
-
-    return f"""{{
-    "type": "tests.model.foo.bar.model_too.Type6",
-    "id": {next_id},
-    "object": {{
-        "uid": {uid},
-        "_name": "say my name",
-        "type1": {__get_ref(type1_id)},
-        "type2": {__get_ref(type2_id)},
-        "type3": {__get_ref(type3_id)},
-        "type4": {__get_ref(type4_id)},
-        "type5": {__get_ref(type5_id)}
-    }}
-}}"""
+def next_id(start_id: int = 0) -> Generator[int, None, None]:
+    while True:
+        yield start_id
+        start_id += 1
 
 
-def type5(type1_id, type2_id, type3_id, type4_id, type6_id, next_id=0) -> str:
-    """After this method next_id will be = next_id + 2"""
+class __BaseTypeRepresentation(ABC):
+    def __init__(self, next_id_generator: Generator[int, None, None]):
+        self.__already_called = False
+        self._current_id = None
+        self._next_id_generator = next_id_generator
 
-    return f"""{{
-    "type": "tests.model.foo.bar.model_too.Type5",
-    "id": {next_id},
-    "object": {{
-        "_Type5__type6": {type6(12, type1_id, type2_id, type3_id, type4_id, next_id, next_id + 1)},
-        "type1": {__get_ref(type1_id)},
-        "type2": {__get_ref(type2_id)},
-        "type3": {__get_ref(type3_id)},
-        "type4": {__get_ref(type4_id)},
-        "type6": {__get_ref(type6_id)}
-    }}
-}}"""
+    @staticmethod
+    def _get_type_representation(type_representation: __BaseTypeRepresentation | None) -> str:
+        return "null" if type_representation is None else type_representation()
+
+    @abstractmethod
+    def _get_self_representation(self) -> str:
+        pass
+
+    def __call__(self) -> str:
+        if not self.__already_called:
+            self.__already_called = True
+            self._current_id = next(self._next_id_generator)
+            return self._get_self_representation()
+        else:
+            return f'{{ "ref_id": {self._current_id} }}'
 
 
-def type4(type1_id, type2_id, type3_id, type5_id, type6_id, next_id=0) -> str:
-    """After this method next_id will be = next_id + 8"""
+class Type6Representation(__BaseTypeRepresentation):
+    def __init__(self, uid: int,
+                 type1_representation: Type1Representation | None,
+                 type2_representation: Type2Representation | None,
+                 type3_representation: Type3Representation | None,
+                 type4_representation: Type4Representation | None,
+                 type5_representation: Type5Representation | None,
+                 next_id_generator: Generator[int, None, None]):
+        super().__init__(next_id_generator)
+        self.__uid = uid
+        self.__type1_representation = type1_representation
+        self.__type2_representation = type2_representation
+        self.__type3_representation = type3_representation
+        self.__type4_representation = type4_representation
+        self.__type5_representation = type5_representation
 
-    return f"""{{
-    "type": "tests.model.foo.model.Type4",
-    "id": {next_id},
-    "object": {{
-        "x": 7,
-        "y": {{
-            "type": "dict",
-            "id": {next_id + 1},
-            "items": [
-                {{
-                    "key": "a",
-                    "value": "a"
+    def _get_self_representation(self) -> str:
+        return f"""{{
+            "type": "tests.model.foo.bar.model_too.Type6",
+            "id": {self._current_id},
+            "object": {{
+                "uid": {self.__uid},
+                "_name": "say my name",
+                "type1": {self._get_type_representation(self.__type1_representation)},
+                "type2": {self._get_type_representation(self.__type2_representation)},
+                "type3": {self._get_type_representation(self.__type3_representation)},
+                "type4": {self._get_type_representation(self.__type4_representation)},
+                "type5": {self._get_type_representation(self.__type5_representation)}
+            }}
+        }}"""
+
+
+class Type5Representation(__BaseTypeRepresentation):
+    def __init__(self,
+                 type1_representation: Type1Representation | None,
+                 type2_representation: Type2Representation | None,
+                 type3_representation: Type3Representation | None,
+                 type4_representation: Type4Representation | None,
+                 type6_representation: Type6Representation | None,
+                 next_id_generator: Generator[int, None, None]):
+        super().__init__(next_id_generator)
+        self.__type1_representation = type1_representation
+        self.__type2_representation = type2_representation
+        self.__type3_representation = type3_representation
+        self.__type4_representation = type4_representation
+        self.__type6_representation = type6_representation
+        self.____type6_representation = Type6Representation(12,
+                                                            type1_representation,
+                                                            type2_representation,
+                                                            type3_representation,
+                                                            type4_representation,
+                                                            self,
+                                                            next_id_generator)
+
+    def _get_self_representation(self) -> str:
+        return f"""{{
+            "type": "tests.model.foo.bar.model_too.Type5",
+            "id": {self._current_id},
+            "object": {{
+                "_Type5__type6": {self.____type6_representation()},
+                "type1": {self._get_type_representation(self.__type1_representation)},
+                "type2": {self._get_type_representation(self.__type2_representation)},
+                "type3": {self._get_type_representation(self.__type3_representation)},
+                "type4": {self._get_type_representation(self.__type4_representation)},
+                "type6": {self._get_type_representation(self.__type6_representation)}
+            }}
+        }}"""
+
+
+class Type4Representation(__BaseTypeRepresentation):
+    def __init__(self,
+                 type1_representation: Type1Representation | None,
+                 type2_representation: Type2Representation | None,
+                 type3_representation: Type3Representation | None,
+                 type5_representation: Type5Representation | None,
+                 type6_representation: Type6Representation | None,
+                 next_id_generator: Generator[int, None, None]):
+        super().__init__(next_id_generator)
+        self.__type1_representation = type1_representation
+        self.__type2_representation = type2_representation
+        self.__type3_representation = type3_representation
+        self.__type5_representation = type5_representation
+        self.__type6_representation = type6_representation
+        self.____type5_representation = Type5Representation(type1_representation,
+                                                            type2_representation,
+                                                            type3_representation,
+                                                            self,
+                                                            type6_representation,
+                                                            next_id_generator)
+        self.____type6_representation = Type6Representation(123,
+                                                            type1_representation,
+                                                            type2_representation,
+                                                            type3_representation,
+                                                            self,
+                                                            type5_representation,
+                                                            next_id_generator)
+
+    def _get_self_representation(self) -> str:
+        return f"""{{
+            "type": "tests.model.foo.model.Type4",
+            "id": {self._current_id},
+            "object": {{
+                "x": 7,
+                "y": {{
+                    "type": "dict",
+                    "id": {next(self._next_id_generator)},
+                    "items": [
+                        {{
+                            "key": "a",
+                            "value": "a"
+                        }},
+                        {{
+                            "key": "b",
+                            "value": {self.____type5_representation()}
+                        }},
+                        {{
+                            "key": "c",
+                            "value": "c"
+                        }}
+                    ]
                 }},
-                {{
-                    "key": "b",
-                    "value": {type5(type1_id, type2_id, type3_id, next_id, type6_id, next_id + 2)}
+                "z": {{
+                    "type": "tuple",
+                    "id": {next(self._next_id_generator)},
+                    "array": [1, 2, 3]
                 }},
-                {{
-                    "key": "c",
-                    "value": "c"
-                }}
-            ]
-        }},
-        "z": {{
-            "type": "tuple",
-            "id": {next_id + 4},
-            "array": [1, 2, 3]
-        }},
-        "w": {{
-            "type": "set",
-            "id": {next_id + 5},
-            "array": [
-                1, 
-                {type6(123, type1_id, type2_id, type3_id, next_id, type5_id, next_id + 6)}, 
-                3
-            ]
-        }},
-        "lst": {{
-            "type": "list",
-            "id": {next_id + 7},
-            "array": [0, 1, 2]
-        }},
-        "type1": {__get_ref(type1_id)},
-        "type2": {__get_ref(type2_id)},
-        "type3": {__get_ref(type3_id)},
-        "type5": {__get_ref(type5_id)},
-        "type6": {__get_ref(type6_id)}
-    }}
-}}"""
-
-
-def type3(type1_id, type2_id, type4_id, type5_id, type6_id, next_id=0) -> str:
-    """After this method next_id will be = next_id + 15"""
-
-    return f"""{{
-    "type": "tests.model.foo.model.Type3",
-    "id": {next_id},
-    "object": {{
-        "_type5": {type5(type1_id, type2_id, next_id, type4_id, type6_id, next_id + 1)},
-        "_Type3__dct": {{
-            "type": "dict",
-            "id": {next_id + 3},
-            "items": [
-                {{
-                    "key": {type5(type1_id, type2_id, next_id, type4_id, type6_id, next_id + 4)},
-                    "value": "3"
+                "w": {{
+                    "type": "list",
+                    "id": {next(self._next_id_generator)},
+                    "array": [
+                        1, 
+                        {self.____type6_representation()}, 
+                        3,
+                        3
+                    ]
                 }},
-                {{
-                    "key": {type6(7, type1_id, type2_id, next_id, type4_id, type5_id, next_id + 6)},
-                    "value": {type4(type1_id, type2_id, next_id, type5_id, type6_id, next_id + 7)}
-                }}
-            ]
-        }},
-        "y": 45,
-        "_tui": 43,
-        "o": 321,
-        "type1": {__get_ref(type1_id)},
-        "type2": {__get_ref(type2_id)},
-        "type4": {__get_ref(type4_id)},
-        "type5": {__get_ref(type5_id)},
-        "type6": {__get_ref(type6_id)}        
-    }}
-}}"""
+                "lst": {{
+                    "type": "list",
+                    "id": {next(self._next_id_generator)},
+                    "array": [0, 1, 2]
+                }},
+                "type1": {self._get_type_representation(self.__type1_representation)},
+                "type2": {self._get_type_representation(self.__type2_representation)},
+                "type3": {self._get_type_representation(self.__type3_representation)},
+                "type5": {self._get_type_representation(self.__type5_representation)},
+                "type6": {self._get_type_representation(self.__type6_representation)}
+            }}
+        }}"""
 
 
-def type2(type1_id, type3_id, type4_id, type5_id, type6_id, next_id=0) -> str:
-    """After this method next_id will be = next_id + 43"""
+class Type3Representation(__BaseTypeRepresentation):
+    def __init__(self,
+                 type1_representation: Type1Representation | None,
+                 type2_representation: Type2Representation | None,
+                 type4_representation: Type4Representation | None,
+                 type5_representation: Type5Representation | None,
+                 type6_representation: Type6Representation | None,
+                 next_id_generator: Generator[int, None, None]):
+        super().__init__(next_id_generator)
+        self.__type1_representation = type1_representation
+        self.__type2_representation = type2_representation
+        self.__type4_representation = type4_representation
+        self.__type5_representation = type5_representation
+        self.__type6_representation = type6_representation
+        self.____type5_representation1 = Type5Representation(type1_representation,
+                                                             type2_representation,
+                                                             self,
+                                                             type4_representation,
+                                                             type6_representation,
+                                                             next_id_generator)
+        self.____type5_representation2 = Type5Representation(type1_representation,
+                                                             type2_representation,
+                                                             self,
+                                                             type4_representation,
+                                                             type6_representation,
+                                                             next_id_generator)
+        self.____type6_representation = Type6Representation(7,
+                                                            type1_representation,
+                                                            type2_representation,
+                                                            self,
+                                                            type4_representation,
+                                                            type5_representation,
+                                                            next_id_generator)
+        self.____type4_representation = Type4Representation(type1_representation,
+                                                            type2_representation,
+                                                            self,
+                                                            type5_representation,
+                                                            type6_representation,
+                                                            next_id_generator)
 
-    return f"""{{
-    "type": "tests.model.model.Type2",
-    "id": {next_id},
-    "object": {{
-        "_Type2__Y": {{
-            "type": "list",
-            "id": {next_id + 1},
-            "array": [1, true, 3]
-        }},
-        "Z": {{
-            "type": "tuple",
-            "id": {next_id + 2},
-            "array": [1, 2, false]
-        }},
-        "W": {{
-            "type": "set",
-            "id": {next_id + 3},
-            "array": [1, 2, 3]
-        }},
-        "_S": {{
-            "type": "set",
-            "id": {next_id + 4},            
-            "array": [
-                {type5(type1_id, next_id, type3_id, type4_id, type6_id, next_id + 5)}, 
-                {type6(6, type1_id, next_id, type3_id, type4_id, type5_id, next_id + 7)}
-            ]
-        }},
-        "L": {{
-            "type": "list",
-            "id": {next_id + 8},
-            "array": [
-                {type3(type1_id, next_id, type4_id, type5_id, type6_id, next_id + 9)}, 
-                {type4(type1_id, next_id, type3_id, type5_id, type6_id, next_id + 24)}
-            ]
-        }},
-        "_Type2__T": {{
-            "type": "tuple",
-            "id": {next_id + 32},
-            "array": [
-                {type4(type1_id, next_id, type3_id, type5_id, type6_id, next_id + 33)}, 
-                {type5(type1_id, next_id, type3_id, type4_id, type6_id, next_id + 41)} 
-            ]
-        }},
-        "type1": {__get_ref(type1_id)},
-        "type3": {__get_ref(type3_id)},
-        "type4": {__get_ref(type4_id)},
-        "type5": {__get_ref(type5_id)},
-        "type6": {__get_ref(type6_id)}   
-    }}
-}}"""
+    def _get_self_representation(self) -> str:
+        return f"""{{
+            "type": "tests.model.foo.model.Type3",
+            "id": {self._current_id},
+            "object": {{
+                "o": 321,
+                "_tui": 43,
+                "y": 45,
+                "_type5": {self.____type5_representation1()},
+                "_Type3__dct": {{
+                    "type": "dict",
+                    "id": {next(self._next_id_generator)},
+                    "items": [
+                        {{
+                            "key": {self.____type5_representation2()},
+                            "value": "3"
+                        }},
+                        {{
+                            "key": {self.____type6_representation()},
+                            "value": {self.____type4_representation()}
+                        }}
+                    ]
+                }},
+                "type1": {self._get_type_representation(self.__type1_representation)},
+                "type2": {self._get_type_representation(self.__type2_representation)},
+                "type4": {self._get_type_representation(self.__type4_representation)},
+                "type5": {self._get_type_representation(self.__type5_representation)},
+                "type6": {self._get_type_representation(self.__type6_representation)}
+            }}
+        }}"""
 
 
-def type1(y: str, next_id=0) -> str:
-    """After this method next_id will be = next_id + 44"""
+class Type2Representation(__BaseTypeRepresentation):
+    def __init__(self,
+                 type1_representation: Type1Representation | None,
+                 type3_representation: Type3Representation | None,
+                 type4_representation: Type4Representation | None,
+                 type5_representation: Type5Representation | None,
+                 type6_representation: Type6Representation | None,
+                 next_id_generator: Generator[int, None, None]):
+        super().__init__(next_id_generator)
+        self.__type1_representation = type1_representation
+        self.__type3_representation = type3_representation
+        self.__type4_representation = type4_representation
+        self.__type5_representation = type5_representation
+        self.__type6_representation = type6_representation
+        self.____type5_representation1 = Type5Representation(type1_representation,
+                                                             self,
+                                                             type3_representation,
+                                                             type4_representation,
+                                                             type6_representation,
+                                                             next_id_generator)
+        self.____type5_representation2 = Type5Representation(type1_representation,
+                                                             self,
+                                                             type3_representation,
+                                                             type4_representation,
+                                                             type6_representation,
+                                                             next_id_generator)
+        self.____type6_representation = Type6Representation(6,
+                                                            type1_representation,
+                                                            self,
+                                                            type3_representation,
+                                                            type4_representation,
+                                                            type5_representation,
+                                                            next_id_generator)
+        self.____type3_representation = Type3Representation(type1_representation,
+                                                            self,
+                                                            type4_representation,
+                                                            type5_representation,
+                                                            type6_representation,
+                                                            next_id_generator)
+        self.____type4_representation1 = Type4Representation(type1_representation,
+                                                             self,
+                                                             type3_representation,
+                                                             type5_representation,
+                                                             type6_representation,
+                                                             next_id_generator)
+        self.____type4_representation2 = Type4Representation(type1_representation,
+                                                             self,
+                                                             type3_representation,
+                                                             type5_representation,
+                                                             type6_representation,
+                                                             next_id_generator)
 
-    return f"""{{
-    "type": "tests.model.model.Type1",
-    "id": {next_id},
-    "object": {{
-        "_y": "{y}",
-        "a": 1,
-        "_b": "2",
-        "_Type1__type": {type2(next_id, None, None, None, None, next_id + 1)},
-        "_Type1__c": 3.0
-    }}
-}}"""
+    def _get_self_representation(self) -> str:
+        return f"""{{
+            "type": "tests.model.model.Type2",
+            "id": {self._current_id},
+            "object": {{
+                "_Type2__Y": {{
+                    "type": "list",
+                    "id": {next(self._next_id_generator)},
+                    "array": [1, true, 3]
+                }},
+                "Z": {{
+                    "type": "tuple",
+                    "id": {next(self._next_id_generator)},
+                    "array": [1, 2, false]
+                }},
+                "W": {{
+                    "type": "set",
+                    "id": {next(self._next_id_generator)},
+                    "array": [1, 2, 3]
+                }},
+                "_S": {{
+                    "type": "tuple",
+                    "id": {next(self._next_id_generator)},
+                    "array": [
+                        {self.____type5_representation1()}, 
+                        {self.____type6_representation()}
+                    ]
+                }},
+                "L": {{
+                    "type": "list",
+                    "id": {next(self._next_id_generator)},
+                    "array": [
+                        {self.____type3_representation()}, 
+                        {self.____type4_representation1()}
+                    ]
+                }},
+                "_Type2__T": {{
+                    "type": "tuple",
+                    "id": {next(self._next_id_generator)},
+                    "array": [
+                        {self.____type4_representation2()}, 
+                        {self.____type5_representation2()} 
+                    ]
+                }},
+                "type1": {self._get_type_representation(self.__type1_representation)},
+                "type3": {self._get_type_representation(self.__type3_representation)},
+                "type4": {self._get_type_representation(self.__type4_representation)},
+                "type5": {self._get_type_representation(self.__type5_representation)},
+                "type6": {self._get_type_representation(self.__type6_representation)}   
+            }}
+        }}"""
+
+
+class Type1Representation(__BaseTypeRepresentation):
+    def __init__(self, y: str,
+                 next_id_generator: Generator[int, None, None]):
+        super().__init__(next_id_generator)
+        self.__y = y
+        self.____type2_representation = Type2Representation(self,
+                                                            None,
+                                                            None,
+                                                            None,
+                                                            None,
+                                                            next_id_generator)
+
+    def _get_self_representation(self) -> str:
+        return f"""{{
+            "type": "tests.model.model.Type1",
+            "id": {self._current_id},
+            "object": {{
+                "_y": "{self.__y}",
+                "a": 1,
+                "_b": "2",
+                "_Type1__type": {self.____type2_representation()},
+                "_Type1__c": 3.0
+            }}
+        }}"""

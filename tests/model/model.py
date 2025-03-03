@@ -13,7 +13,7 @@ class Type2:
         self.__Y = [1, True, 3]
         self.Z = (1, 2, False)
         self.W = {1, 2, 3, 3}
-        self._S = {Type5(type1, self, type3, type4, type6), Type6(6, type1, self, type3, type4, type5)}
+        self._S = (Type5(type1, self, type3, type4, type6), Type6(6, type1, self, type3, type4, type5))
         self.L = [Type3(type1, self, type4, type5, type6), Type4(type1, self, type3, type5, type6)]
         self.__T = (Type4(type1, self, type3, type5, type6), Type5(type1, self, type3, type4, type6))
         self.type1 = type1

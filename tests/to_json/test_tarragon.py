@@ -8,7 +8,8 @@ import tarragon
 from tests.model.foo.bar.model_too import Type5, Type6
 from tests.model.foo.model import Type4
 from tests.model.model import Type1
-from tests.to_json.model_expected import type1, type4, type5, type6
+from tests.to_json.model_expected import Type1Representation, next_id, Type5Representation, Type4Representation, \
+    Type6Representation
 
 
 class Hook:
@@ -16,6 +17,7 @@ class Hook:
         self.ref = ref
 
 
+# FIXME вероятно можно будет удалить, т.к dict соблюдает порядок, а set-ов больше у меня не осталось (почти)
 class SetsAndDictsFixer:
     @classmethod
     def __dive_to_list(cls, lst: list[Any]):
@@ -67,42 +69,50 @@ def test_dict_to_json():
     type5_object.type4 = type4_object
     type5_object.type6 = type6_object
     type4_object.type6 = type6_object
-
     hook = Hook()
     dct = {type5_object: "67", type6_object: type4_object, 1: type5_object, hook: hook}
     hook.ref = dct
-
     actual_json = tarragon.to_json(dct)
+
+    next_id_generator = next_id()
+    type5_representation = Type5Representation(None, None, None, None, None,
+                                               next_id_generator)
+    type4_representation = Type4Representation(None, None, None, type5_representation, None,
+                                               next_id_generator)
+    type6_representation = Type6Representation(uid, None, None, None, type4_representation, type5_representation,
+                                               next_id_generator)
+    type4_representation._Type4Representation__type6_representation = type6_representation
+    type5_representation._Type5Representation__type4_representation = type4_representation
+    type5_representation._Type5Representation__type6_representation = type6_representation
+    current_id = next(next_id_generator)
     expected_json = f"""{{
         "type": "dict",
-        "id": 0,
+        "id": {current_id},
         "items": [
             {{
-                "key": {type5(None, None, None, 4, 3, 1)},
+                "key": {type5_representation()},
                 "value": "67"
             }},
             {{
-                "key": {type6(uid, None, None, None, 4, 1, 3)},
-                "value": {type4(None, None, None, 1, 3, 4)}
+                "key": {type6_representation()},
+                "value": {type4_representation()}
             }},
             {{
                 "key": 1,
-                "value": {{
-                    "ref_id": 1
-                }}
+                "value": {type5_representation()}
             }},
             {{
                 "key": {{
                     "type": "tests.to_json.test_tarragon.Hook",
-                    "id": 12,
+                    "id": {next(next_id_generator)},
                     "object": {{
                         "ref": {{
-                            "ref_id": 0
+                            "ref_id": {current_id}
                         }}
                     }}
                 }},
                 "value": {{
-                    "ref_id": 12
+                    "ref_id": {next(next_id_generator) - 1}
                 }}
             }}
         ]
@@ -116,19 +126,25 @@ def test_list_to_json():
     type5_object = Type5(None, None, None, None, None)
     type4_object = Type4(None, None, None, type5_object, None)
     type5_object.type4 = type4_object
-
     lst = [type5_object, type4_object]
     lst.append(lst)
-
     actual_json = tarragon.to_json(lst)
+
+    next_id_generator = next_id()
+    type5_representation = Type5Representation(None, None, None, None, None,
+                                               next_id_generator)
+    type4_representation = Type4Representation(None, None, None, type5_representation, None,
+                                               next_id_generator)
+    type5_representation._Type5Representation__type4_representation = type4_representation
+    current_id = next(next_id_generator)
     expected_json = f"""{{
         "type": "list",
-        "id": 0,
+        "id": {current_id},
         "array": [
-            {type5(None, None, None, 3, None, 1)}, 
-            {type4(None, None, None, 1, None, 3)}, 
+            {type5_representation()}, 
+            {type4_representation()}, 
             {{
-                "ref_id": 0
+                "ref_id": {current_id}
             }}
         ]
     }}"""
@@ -141,24 +157,30 @@ def test_tuple_to_json():
     type5_object = Type5(None, None, None, None, None)
     type4_object = Type4(None, None, None, type5_object, None)
     type5_object.type4 = type4_object
-
     hook = Hook()
     tpl = (type5_object, type4_object, hook)
     hook.ref = tpl
-
     actual_json = tarragon.to_json(tpl)
+
+    next_id_generator = next_id()
+    type5_representation = Type5Representation(None, None, None, None, None,
+                                               next_id_generator)
+    type4_representation = Type4Representation(None, None, None, type5_representation, None,
+                                               next_id_generator)
+    type5_representation._Type5Representation__type4_representation = type4_representation
+    current_id = next(next_id_generator)
     expected_json = f"""{{
         "type": "tuple",
-        "id": 0,
+        "id": {current_id},
         "array": [
-            {type5(None, None, None, 3, None, 1)}, 
-            {type4(None, None, None, 1, None, 3)}, 
+            {type5_representation()}, 
+            {type4_representation()}, 
             {{
                 "type": "tests.to_json.test_tarragon.Hook",
-                "id": 11,
+                "id": {next(next_id_generator)},
                 "object": {{
                     "ref": {{
-                        "ref_id": 0
+                        "ref_id": {current_id}
                     }}
                 }}
             }}
@@ -169,28 +191,35 @@ def test_tuple_to_json():
         SetsAndDictsFixer.fix(json.loads(expected_json)))
 
 
+# FIXME тут видимо будут проблемы из-за неупорядоченности set
 def test_set_to_json():
     type5_object = Type5(None, None, None, None, None)
     type4_object = Type4(None, None, None, type5_object, None)
     type5_object.type4 = type4_object
-
     st = {type5_object, type4_object}
     hook = Hook(st)
     st.add(hook)
-
     actual_json = tarragon.to_json(st)
+
+    next_id_generator = next_id()
+    type5_representation = Type5Representation(None, None, None, None, None,
+                                               next_id_generator)
+    type4_representation = Type4Representation(None, None, None, type5_representation, None,
+                                               next_id_generator)
+    type5_representation._Type5Representation__type4_representation = type4_representation
+    current_id = next(next_id_generator)
     expected_json = f"""{{
         "type": "set",
-        "id": 0,
+        "id": {current_id},
         "array": [
-            {type5(None, None, None, 3, None, 1)}, 
-            {type4(None, None, None, 1, None, 3)}, 
+            {type5_representation()}, 
+            {type4_representation()}, 
             {{
                 "type": "tests.to_json.test_tarragon.Hook",
-                "id": 11,
+                "id": {next(next_id_generator)},
                 "object": {{
                     "ref": {{
-                        "ref_id": 0
+                        "ref_id": {current_id}
                     }}
                 }}
             }}
@@ -205,7 +234,7 @@ def test_object_to_json():
     y = "1"
 
     actual_json = tarragon.to_json(Type1(y))
-    expected_json = type1(y)
+    expected_json = Type1Representation(y, next_id())()
 
     assertpy.assert_that(SetsAndDictsFixer.fix(json.loads(actual_json))).is_equal_to(
         SetsAndDictsFixer.fix(json.loads(expected_json)))
