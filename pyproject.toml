@@ -24,6 +24,9 @@ url = "https://test.pypi.org/legacy/"
 Repository = "https://github.com/pyizi/tarragon"
 License = "https://github.com/pyizi/tarragon?tab=License-1-ov-file"
 
+[tool.poetry.dependencies]
+dill = "0.3.9"
+
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.4"
 assertpy = "1.1"

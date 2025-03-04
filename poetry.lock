@@ -25,6 +25,22 @@ files = [
 ]
 
 [[package]]
+name = "dill"
+version = "0.3.9"
+description = "serialize all of Python"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "dill-0.3.9-py3-none-any.whl", hash = "sha256:468dff3b89520b474c0397703366b7b95eebe6303f108adf9b19da1f702be87a"},
+    {file = "dill-0.3.9.tar.gz", hash = "sha256:81aa267dddf68cbfe8029c42ca9ec6a4ab3b22371d1c450abc54422577b4512c"},
+]
+
+[package.extras]
+graph = ["objgraph (>=1.7.2)"]
+profile = ["gprof2dot (>=2022.7.29)"]
+
+[[package]]
 name = "execnet"
 version = "2.1.1"
 description = "execnet: rapid multi-Python deployment"
@@ -124,4 +140,4 @@ testing = ["filelock"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "7de3e117ff2360b93fde398bdf6a22a4e7f6e510242ea89ae07caf59f8e654f8"
+content-hash = "0f9c9aa006e7d85aee0b87b313c2379e9081f981818414f0daa1a2d75982de30"
