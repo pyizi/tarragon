@@ -119,20 +119,25 @@ def to_json(obj: Any) -> str:
 
 
 def from_json(json: str) -> Any:
+    # TODO
     raise NotImplementedError()
 
 
 def to_yaml(obj: Any) -> str:
+    # TODO instead of "ref_id" in json's implementation should use yaml's refs supporting
     raise NotImplementedError()
 
 
 def from_yaml(yaml: str) -> Any:
+    # TODO
     raise NotImplementedError()
 
 
 def to_xml(obj: Any) -> str:
+    # TODO simple implementation without supporting of xml's configuration
     raise NotImplementedError()
 
 
 def from_xml(xml: str) -> Any:
+    # TODO
     raise NotImplementedError()
