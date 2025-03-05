@@ -8,7 +8,9 @@ from typing import Generator
 class ModelType(Enum):
     VANILLA = "vanilla"
     DATACLASS = "dataclass"
+    FROZEN_DATACLASS = "frozen_dataclass"
     ATTR = "attr"
+    FROZEN_ATTR = "frozen_attr"
 
 
 class ModelRepresentation:
