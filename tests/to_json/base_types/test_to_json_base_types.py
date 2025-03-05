@@ -138,8 +138,37 @@ def test_to_json_exception():
 
 
 def test_to_json_class():
-    # TODO
-    raise NotImplementedError()
+    class A:
+        """doc: class A"""
+        pass
+
+    actual_json = tarragon.to_json(A)
+    actual_dict = json.loads(actual_json)
+
+    actual_dict["object"]["__dict__"]["base64"] = None
+    actual_dict["object"]["__weakref__"]["base64"] = None
+
+    expected_json = f"""{{
+      "type": "builtins.type",
+      "id": 0,
+      "object": {{
+        "__module__": "tests.to_json.base_types.test_to_json_base_types",
+        "__dict__": {{
+          "type": "builtins.getset_descriptor",
+          "id": 1,
+          "base64": null
+        }},
+        "__weakref__": {{
+          "type": "builtins.getset_descriptor",
+          "id": 2,
+          "base64": null
+        }},
+        "__doc__": "doc: class A"
+      }}
+    }}"""
+    expected_dict = json.loads(expected_json)
+
+    assertpy.assert_that(actual_dict).is_equal_to(expected_dict)
 
 
 def test_to_json_generator():
