@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+
 # fix circular import:
-# from tests.model.foo.model import Type3, Type4
-# from tests.model.model import Type2, Type1
+# from tests.model.vanilla.foo.model import Type3, Type4
+# from tests.model.vanilla.model import Type2, Type1
 
 
 class Type6:

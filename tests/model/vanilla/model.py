@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from tests.model.foo.bar.model_too import Type5, Type6
-from tests.model.foo.model import Type3, Type4
+from tests.model.vanilla.foo.bar.model_too import Type5, Type6
+from tests.model.vanilla.foo.model import Type3, Type4
 
 
 class Type2:

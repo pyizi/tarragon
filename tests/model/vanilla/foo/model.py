@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from tests.model.vanilla.foo.bar.model_too import Type5, Type6
+
+
 # fix circular import:
-# from tests.model.model import Type1, Type2
-from tests.model.foo.bar.model_too import Type5, Type6
+# from tests.model.vanilla.model import Type1, Type2
 
 
 class BaseForType3_2:

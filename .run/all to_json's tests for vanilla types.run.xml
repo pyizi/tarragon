@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="all to_json's tests" type="tests" factoryName="Autodetect">
+  <configuration default="false" name="all to_json's tests for vanilla types" type="tests" factoryName="Autodetect">
     <module name="tarragon" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
@@ -11,7 +11,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="_new_additionalArguments" value="&quot;&quot;" />
-    <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/to_json/test_tarragon.py&quot;" />
+    <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/to_json/custom_types/vanilla/test_to_json_custom_types_vanilla.py&quot;" />
     <option name="_new_targetType" value="&quot;PATH&quot;" />
     <method v="2" />
   </configuration>
