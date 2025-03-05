@@ -70,6 +70,9 @@ class __DictRepresentor:
                     "id": virtual_obj_id,
                 }
 
+                # TODO If it has no "__dict__" then
+                #  for "dataclasses" we can use "__dataclass_fields__" and
+                #  for "attrs" we can use "__attrs_attrs__"
                 if hasattr(obj, "__dict__") and obj_type != types.FunctionType and not isinstance(obj, BaseException):
                     fields = {}
                     for key, value in vars(obj).items():
