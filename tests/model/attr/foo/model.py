@@ -61,10 +61,10 @@ class BaseForType3_1(BaseForBaseForType3):
 @attr.define(init=False, unsafe_hash=True, slots=False, eq=False)
 class Type4:
     x: int = attr.field()
-    y: dict = attr.field()
+    y: dict = attr.field(hash=False)
     z: tuple = attr.field()
-    w: list = attr.field()
-    lst: list = attr.field()
+    w: list = attr.field(hash=False)
+    lst: list = attr.field(hash=False)
     type1: "Type1" = attr.field(hash=False)
     type2: "Type2" = attr.field(hash=False)
     type3: Type3 = attr.field(hash=False)

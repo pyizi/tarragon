@@ -61,10 +61,10 @@ class BaseForType3_1(BaseForBaseForType3):
 @dataclass(init=False, frozen=True, eq=False, unsafe_hash=True)
 class Type4:
     x: int = field()
-    y: dict = field()
+    y: dict = field(hash=False)
     z: tuple = field()
-    w: list = field()
-    lst: list = field()
+    w: list = field(hash=False)
+    lst: list = field(hash=False)
     type1: "Type1" = field(hash=False)
     type2: "Type2" = field(hash=False)
     type3: Type3 = field(hash=False)
