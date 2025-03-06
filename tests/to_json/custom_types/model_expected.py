@@ -365,20 +365,13 @@ class ModelRepresentation:
                                                                       type5_representation,
                                                                       type6_representation,
                                                                       next_id_generator)
-            self.____type4_representation1 = ModelRepresentation.Type4(model_type,
-                                                                       type1_representation,
-                                                                       self,
-                                                                       type3_representation,
-                                                                       type5_representation,
-                                                                       type6_representation,
-                                                                       next_id_generator)
-            self.____type4_representation2 = ModelRepresentation.Type4(model_type,
-                                                                       type1_representation,
-                                                                       self,
-                                                                       type3_representation,
-                                                                       type5_representation,
-                                                                       type6_representation,
-                                                                       next_id_generator)
+            self.____type4_representation = ModelRepresentation.Type4(model_type,
+                                                                      type1_representation,
+                                                                      self,
+                                                                      type3_representation,
+                                                                      type5_representation,
+                                                                      type6_representation,
+                                                                      next_id_generator)
 
         def _get_self_representation(self) -> str:
             return f"""{{
@@ -413,14 +406,14 @@ class ModelRepresentation:
                         "id": {next(self._next_id_generator)},
                         "array": [
                             {self.____type3_representation()}, 
-                            {self.____type4_representation1()}
+                            {self.____type4_representation()}
                         ]
                     }},
                     "_Type2__T": {{
                         "type": "tuple",
                         "id": {next(self._next_id_generator)},
                         "array": [
-                            {self.____type4_representation2()}, 
+                            {self.____type4_representation()}, 
                             {self.____type5_representation2()} 
                         ]
                     }},

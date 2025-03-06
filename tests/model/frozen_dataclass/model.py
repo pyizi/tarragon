@@ -39,10 +39,11 @@ class Type2:
         object.__setattr__(self, "W", {1, 2, 3, 3})
         object.__setattr__(self, "_S",
                            (Type5(type1, self, type3, type4, type6), Type6(6, type1, self, type3, type4, type5)))
+        new_type4 = Type4(type1, self, type3, type5, type6)
         object.__setattr__(self, "L",
-                           [Type3(type1, self, type4, type5, type6), Type4(type1, self, type3, type5, type6)])
+                           [Type3(type1, self, type4, type5, type6), new_type4])
         object.__setattr__(self, "_Type2__T",
-                           (Type4(type1, self, type3, type5, type6), Type5(type1, self, type3, type4, type6)))
+                           (new_type4, Type5(type1, self, type3, type4, type6)))
         object.__setattr__(self, "type1", type1)
         object.__setattr__(self, "type3", type3)
         object.__setattr__(self, "type4", type4)
