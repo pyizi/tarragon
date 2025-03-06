@@ -18,6 +18,8 @@ class BaseForType3_2:
         else:
             return not bool(DeepDiff(self, other))
 
+    __hash__ = object.__hash__
+
     def __init__(self):
         self.o = 321
 
@@ -29,6 +31,8 @@ class BaseForBaseForType3:
             return False
         else:
             return not bool(DeepDiff(self, other))
+
+    __hash__ = object.__hash__
 
     def __init__(self, tui=43):
         super().__init__()
@@ -44,6 +48,8 @@ class BaseForType3_1(BaseForBaseForType3):
         else:
             return not bool(DeepDiff(self, other))
 
+    __hash__ = object.__hash__
+
     def __init__(self, y):
         super().__init__()
         self.y = y
@@ -56,6 +62,8 @@ class Type4:
             return False
         else:
             return not bool(DeepDiff(self, other))
+
+    __hash__ = object.__hash__
 
     def __init__(self, type1: "Type1", type2: "Type2", type3: Type3, type5: Type5, type6: Type6):
         self.x: int = 7
@@ -78,6 +86,8 @@ class Type3(BaseForType3_1, BaseForType3_2):
             return False
         else:
             return not bool(DeepDiff(self, other))
+
+    __hash__ = object.__hash__
 
     def __init__(self, type1: "Type1", type2: "Type2", type4: Type4, type5: Type5, type6: Type6):
         super().__init__(45)

@@ -16,6 +16,8 @@ class Type6:
         else:
             return not bool(DeepDiff(self, other))
 
+    __hash__ = object.__hash__
+
     def __init__(self, uid, type1: "Type1", type2: "Type2", type3: "Type3", type4: "Type4", type5: Type5):
         self.uid = uid
         self._name = "say my name"
@@ -32,6 +34,8 @@ class Type5:
             return False
         else:
             return not bool(DeepDiff(self, other))
+
+    __hash__ = object.__hash__
 
     def __init__(self, type1: "Type1", type2: "Type2", type3: "Type3", type4: "Type4", type6: Type6):
         self.__type6 = Type6(12, type1, type2, type3, type4, self)

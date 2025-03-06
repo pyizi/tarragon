@@ -17,6 +17,8 @@ class Type2:
         else:
             return not bool(DeepDiff(self, other))
 
+    __hash__ = object.__hash__
+
     def __init__(self, type1: Type1, type3: Type3, type4: Type4, type5: Type5, type6: Type6):
         self.__Y = [1, True, 3]
         self.Z = (1, 2, False)
@@ -41,6 +43,8 @@ class Type1:
             return False
         else:
             return not bool(DeepDiff(self, other))
+
+    __hash__ = object.__hash__
 
     def __init__(self, y):
         self._y = y
