@@ -4,10 +4,10 @@ import assertpy
 import pytest
 
 import tarragon
+from tests.common import Hook, HOOK_CLASS_FULLNAME
 from tests.model.attr.foo.bar.model_too import Type5, Type6
 from tests.model.attr.foo.model import Type4
 from tests.model.attr.model import Type1
-from tests.to_json.common import Hook
 from tests.to_json.custom_types.model_expected import ModelRepresentation, ModelType
 
 
@@ -56,7 +56,7 @@ def test_to_json_dict_of_attr(model_representation):
             }},
             {{
                 "key": {{
-                    "type": "tests.to_json.common.Hook",
+                    "type": "{HOOK_CLASS_FULLNAME}",
                     "id": {model_representation.get_next_id()},
                     "object": {{
                         "ref": {{
@@ -121,7 +121,7 @@ def test_to_json_tuple_of_attr(model_representation):
             {type5_representation()}, 
             {type4_representation()}, 
             {{
-                "type": "tests.to_json.common.Hook",
+                "type": "{HOOK_CLASS_FULLNAME}",
                 "id": {model_representation.get_next_id()},
                 "object": {{
                     "ref": {{

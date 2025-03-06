@@ -5,7 +5,7 @@ import dill
 from assertpy import assertpy
 
 import tarragon
-from tests.to_json.common import Hook
+from tests.common import Hook, HOOK_CLASS_FULLNAME
 
 
 def test_to_json_frozenset():
@@ -19,7 +19,7 @@ def test_to_json_frozenset():
         "id": 0,
         "array": [
             {{
-                "type": "tests.to_json.common.Hook",
+                "type": "{HOOK_CLASS_FULLNAME}",
                 "id": 1,
                 "object": {{
                     "ref": {{
@@ -44,7 +44,7 @@ def test_to_json_set():
         "id": 0,
         "array": [
             {{
-                "type": "tests.to_json.common.Hook",
+                "type": "{HOOK_CLASS_FULLNAME}",
                 "id": 1,
                 "object": {{
                     "ref": {{
