@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import attr
+from deepdiff import DeepDiff
 
 
 # fix circular import:
@@ -8,7 +9,7 @@ import attr
 # from tests.model.attr.model import Type2, Type1
 
 
-@attr.define(init=False, unsafe_hash=True, slots=False)
+@attr.define(init=False, unsafe_hash=True, slots=False, eq=False)
 class Type6:
     uid: int = attr.field()
     _name: str = attr.field()
@@ -17,6 +18,12 @@ class Type6:
     type3: "Type3" = attr.field(hash=False)
     type4: "Type4" = attr.field(hash=False)
     type5: Type5 = attr.field(hash=False)
+
+    def __eq__(self, other: Type6) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
 
     def __init__(self, uid, type1: "Type1", type2: "Type2", type3: "Type3", type4: "Type4", type5: Type5):
         self.uid = uid
@@ -28,7 +35,7 @@ class Type6:
         self.type5 = type5
 
 
-@attr.define(init=False, unsafe_hash=True, slots=False)
+@attr.define(init=False, unsafe_hash=True, slots=False, eq=False)
 class Type5:
     __type6: Type6 = attr.field()
     type1: "Type1" = attr.field(hash=False)
@@ -36,6 +43,12 @@ class Type5:
     type3: "Type3" = attr.field(hash=False)
     type4: "Type4" = attr.field(hash=False)
     type6: Type6 = attr.field(hash=False)
+
+    def __eq__(self, other: Type5) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
 
     def __init__(self, type1: "Type1", type2: "Type2", type3: "Type3", type4: "Type4", type6: Type6):
         self.__type6 = Type6(12, type1, type2, type3, type4, self)

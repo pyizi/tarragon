@@ -3,11 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import ClassVar
 
+from deepdiff import DeepDiff
+
 from tests.model.dataclass.foo.bar.model_too import Type5, Type6
 from tests.model.dataclass.foo.model import Type3, Type4
 
 
-@dataclass(init=False, unsafe_hash=True)
+@dataclass(init=False, unsafe_hash=True, eq=False)
 class Type2:
     X: ClassVar = {"a": 1, "b": 2, "c": 3}
     D: ClassVar = {"type3": Type3(None, None, None, None, None),
@@ -25,6 +27,12 @@ class Type2:
     type5: Type5 = field(hash=False)
     type6: Type6 = field(hash=False)
 
+    def __eq__(self, other: Type2) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
+
     def __init__(self, type1: Type1, type3: Type3, type4: Type4, type5: Type5, type6: Type6):
         self.__Y = [1, True, 3]
         self.Z = (1, 2, False)
@@ -39,7 +47,7 @@ class Type2:
         self.type6 = type6
 
 
-@dataclass(init=False, unsafe_hash=True)
+@dataclass(init=False, unsafe_hash=True, eq=False)
 class Type1:
     __x: ClassVar = 1
     _y: str = field()
@@ -49,6 +57,12 @@ class Type1:
     _b: str = field()
     __type: Type2 = field()
     __c: float = field()
+
+    def __eq__(self, other: Type1) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
 
     def __init__(self, y):
         self._y = y

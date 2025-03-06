@@ -3,11 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import ClassVar
 
+from deepdiff import DeepDiff
+
 from tests.model.frozen_dataclass.foo.bar.model_too import Type5, Type6
 from tests.model.frozen_dataclass.foo.model import Type3, Type4
 
 
-@dataclass(init=False, frozen=True)
+@dataclass(init=False, frozen=True, eq=False, unsafe_hash=True)
 class Type2:
     X: ClassVar = {"a": 1, "b": 2, "c": 3}
     D: ClassVar = {"type3": Type3(None, None, None, None, None),
@@ -24,6 +26,12 @@ class Type2:
     type4: Type4 = field(hash=False)
     type5: Type5 = field(hash=False)
     type6: Type6 = field(hash=False)
+
+    def __eq__(self, other: Type2) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
 
     def __init__(self, type1: Type1, type3: Type3, type4: Type4, type5: Type5, type6: Type6):
         object.__setattr__(self, "_Type2__Y", [1, True, 3])
@@ -42,7 +50,7 @@ class Type2:
         object.__setattr__(self, "type6", type6)
 
 
-@dataclass(init=False, frozen=True)
+@dataclass(init=False, frozen=True, eq=False, unsafe_hash=True)
 class Type1:
     __x: ClassVar = 1
     _y: str = field()
@@ -52,6 +60,12 @@ class Type1:
     _b: str = field()
     __type: Type2 = field()
     __c: float = field()
+
+    def __eq__(self, other: Type1) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
 
     def __init__(self, y):
         object.__setattr__(self, "_y", y)

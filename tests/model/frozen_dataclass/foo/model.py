@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import ClassVar
 
+from deepdiff import DeepDiff
+
 from tests.model.frozen_dataclass.foo.bar.model_too import Type5, Type6
 
 
@@ -10,35 +12,53 @@ from tests.model.frozen_dataclass.foo.bar.model_too import Type5, Type6
 # from tests.model.frozen_dataclass.model import Type1, Type2
 
 
-@dataclass(init=False, frozen=True)
+@dataclass(init=False, frozen=True, eq=False, unsafe_hash=True)
 class BaseForType3_2:
     Z: ClassVar[str] = "abc"
     o: int = field()
+
+    def __eq__(self, other: BaseForType3_2) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
 
     def __init__(self):
         object.__setattr__(self, "o", 321)
 
 
-@dataclass(init=False, frozen=True)
+@dataclass(init=False, frozen=True, eq=False, unsafe_hash=True)
 class BaseForBaseForType3:
     _tui: int = field()
+
+    def __eq__(self, other: BaseForBaseForType3) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
 
     def __init__(self, tui=43):
         super().__init__()
         object.__setattr__(self, "_tui", tui)
 
 
-@dataclass(init=False, frozen=True)
+@dataclass(init=False, frozen=True, eq=False, unsafe_hash=True)
 class BaseForType3_1(BaseForBaseForType3):
     X: ClassVar[int] = 12
     y: int = field()
+
+    def __eq__(self, other: BaseForType3_1) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
 
     def __init__(self, y):
         super().__init__()
         object.__setattr__(self, "y", y)
 
 
-@dataclass(init=False, frozen=True)
+@dataclass(init=False, frozen=True, eq=False, unsafe_hash=True)
 class Type4:
     x: int = field()
     y: dict = field()
@@ -50,6 +70,12 @@ class Type4:
     type3: Type3 = field(hash=False)
     type5: Type5 = field(hash=False)
     type6: Type6 = field(hash=False)
+
+    def __eq__(self, other: Type4) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
 
     def __init__(self, type1: "Type1", type2: "Type2", type3: Type3, type5: Type5, type6: Type6):
         object.__setattr__(self, "x", 7)
@@ -64,7 +90,7 @@ class Type4:
         object.__setattr__(self, "type6", type6)
 
 
-@dataclass(init=False, frozen=True)
+@dataclass(init=False, frozen=True, eq=False, unsafe_hash=True)
 class Type3(BaseForType3_1, BaseForType3_2):
     _type5: Type5 = field()
     __dct: dict = field()
@@ -73,6 +99,12 @@ class Type3(BaseForType3_1, BaseForType3_2):
     type4: Type4 = field(hash=False)
     type5: Type5 = field(hash=False)
     type6: Type6 = field(hash=False)
+
+    def __eq__(self, other: Type3) -> bool:
+        if type(other) is not type(self):
+            return False
+        else:
+            return not bool(DeepDiff(self, other))
 
     def __init__(self, type1: "Type1", type2: "Type2", type4: Type4, type5: Type5, type6: Type6):
         super().__init__(45)
