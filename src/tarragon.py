@@ -1,7 +1,7 @@
 import base64
 import json
 import types
-from typing import Any
+from typing import Any, Type
 
 import dill
 
@@ -118,7 +118,7 @@ def to_json(obj: Any) -> str:
     return json.dumps(__DictRepresentor(obj).run())
 
 
-def from_json(json: str) -> Any:
+def from_json(json: str, types_substitution: dict[str, Type[Any]] | None = None) -> Any:
     # TODO
     raise NotImplementedError()
 
@@ -128,7 +128,7 @@ def to_yaml(obj: Any) -> str:
     raise NotImplementedError()
 
 
-def from_yaml(yaml: str) -> Any:
+def from_yaml(yaml: str, types_substitution: dict[str, Type[Any]] | None = None) -> Any:
     # TODO
     raise NotImplementedError()
 
@@ -138,6 +138,6 @@ def to_xml(obj: Any) -> str:
     raise NotImplementedError()
 
 
-def from_xml(xml: str) -> Any:
+def from_xml(xml: str, types_substitution: dict[str, Type[Any]] | None = None) -> Any:
     # TODO
     raise NotImplementedError()

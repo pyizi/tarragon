@@ -9,6 +9,8 @@ from tests.model.frozen_attr.foo.model import Type4
 from tests.model.frozen_attr.model import Type1
 
 
+# TODO write tests for check "types_substitution"
+
 def test_from_json_dict_of_frozen_attr():
     uid = 7
 

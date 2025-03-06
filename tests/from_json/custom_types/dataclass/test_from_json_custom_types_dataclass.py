@@ -9,6 +9,8 @@ from tests.model.dataclass.foo.model import Type4
 from tests.model.dataclass.model import Type1
 
 
+# TODO write tests for check "types_substitution"
+
 def test_from_json_dict_of_dataclass():
     uid = 7
 
